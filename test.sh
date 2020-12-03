@@ -26,5 +26,7 @@ assert 9 "(1+2)*3"
 assert 3 "a=1; b=2; a+b"
 assert 3 "if 1 < 2 then 3 else 4"
 assert 4 "a=5; if a < 2 then 3 else 4"
+assert 3 "def add(x y) x+y; add(1,2)"
+assert 55 "def fib(x) if x < 3 then 1 else fib(x-1) + fib(x-2); fib(10)"
 
 echo OK

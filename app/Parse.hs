@@ -27,7 +27,7 @@ symbol :: String -> Parser String
 symbol s = L.symbol sc s
 
 identifier :: Parser String
-identifier = do
+identifier = lexeme $ do
   firstLetter <- letterChar
   middleLetters <- many ( oneOf (['0'..'9'] ++ ['a'..'z'] ++ ['A'..'Z'] ++ ['_']) )
   lastLetters <- many (oneOf "!?_'")
@@ -51,6 +51,8 @@ term :: Parser Expr
 term = ExprInt <$> lexeme L.decimal
   <|> parens expr
   <|> exprIf
+  <|> funDef
+  <|> try funCall
   <|> Var <$> lexeme identifier
 
 exprIf :: Parser Expr
@@ -63,8 +65,22 @@ exprIf = do
     elseExpr <- expr
     pure $ ExprIf condExpr thenExpr elseExpr
 
+funDef :: Parser Expr
+funDef = do
+    symbol "def"
+    funName <- identifier
+    params <- parens $ many identifier
+    body <- expr
+    pure $ Fun funName params body
+
+funCall :: Parser Expr
+funCall = do
+    name <- identifier
+    args <- parens $ expr `sepBy` (symbol ",")
+    pure $ FunCall name args
+
 parens :: Parser a -> Parser a
-parens = between (char '(') (char ')')
+parens = between (symbol "(") (symbol ")")
 
 exprs :: Parser [Expr]
 exprs = expr `sepEndBy` (symbol ";")
