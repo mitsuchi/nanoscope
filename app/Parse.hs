@@ -26,13 +26,21 @@ lexeme = L.lexeme sc
 symbol :: String -> Parser String
 symbol s = L.symbol sc s
 
+identifier :: Parser String
+identifier = do
+  firstLetter <- letterChar
+  middleLetters <- many ( oneOf (['0'..'9'] ++ ['a'..'z'] ++ ['A'..'Z'] ++ ['_']) )
+  lastLetters <- many (oneOf "!?_'")
+  pure $ firstLetter : (middleLetters ++ lastLetters)
+
 ops :: [[Operator Parser Expr]]
 ops =
   [
     [ InfixL (ExprMul <$ (symbol "*"))
     , InfixL (ExprDiv <$ (symbol "/")) ],
     [ InfixL (ExprAdd <$ (symbol "+"))
-    , InfixL (ExprSub <$ (symbol "-")) ]
+    , InfixL (ExprSub <$ (symbol "-")) ],
+    [ InfixL (Assign <$ (symbol "=")) ]
   ]
 
 expr :: Parser Expr
@@ -40,12 +48,16 @@ expr = makeExprParser term ops
 
 term :: Parser Expr
 term = ExprInt <$> lexeme L.decimal
-    <|> parens expr
+  <|> parens expr
+  <|> Var <$> lexeme identifier
 
 parens :: Parser a -> Parser a
 parens = between (char '(') (char ')')
 
-parseExpr :: String -> Expr
-parseExpr str = case parse (sc *> expr) "<stdin>" str of
+exprs :: Parser [Expr]
+exprs = expr `sepEndBy` (symbol ";")
+
+parseExpr :: String -> [Expr]
+parseExpr str = case parse (sc *> exprs) "<stdin>" str of
   Right ast -> ast
   Left bundle -> error $ errorBundlePretty bundle

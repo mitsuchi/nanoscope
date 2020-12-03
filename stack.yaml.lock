@@ -46,6 +46,20 @@ packages:
       sha256: 6af438ee4e4dd7ace21344c50c88c8ab1dd44a50268616f153cb025393b95345
   original:
     hackage: parser-combinators-1.1.0
+- completed:
+    hackage: transformers-0.5.6.2@sha256:6c959d14430f4deffb99579ba019de07c3d852a2122b6f449344386c7d75ff1d,3172
+    pantry-tree:
+      size: 2512
+      sha256: c79246ba7d61392c2f214376fed3c2a05e4b2649b93ec2c849a86493f278ace0
+  original:
+    hackage: transformers-0.5.6.2
+- completed:
+    hackage: containers-0.6.0.1@sha256:50024f330653c702a339f7743522b3c2a4fff9c6bf5a7071affe270da2ee649a,15843
+    pantry-tree:
+      size: 4933
+      sha256: 9a33a9d98310bf01b0ee2dd041dfdaaabfcbc07547a4c60443678a22cb114299
+  original:
+    hackage: containers-0.6.0.1
 snapshots:
 - completed:
     size: 524163

@@ -23,5 +23,6 @@ assert 6 2*3
 assert 2 10/4
 assert 7 1+2*3
 assert 9 "(1+2)*3"
+assert 3 "a=1; b=2; a+b"
 
 echo OK
