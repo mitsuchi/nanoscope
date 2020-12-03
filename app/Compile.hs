@@ -1,11 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecursiveDo #-}
+
 module Compile where
 
 import AstData
+import Control.Monad.Fix
 import Control.Monad.Trans.State
 import qualified Data.Map as M
 import LLVM.Pretty
 import LLVM.AST hiding (function, value)
+import LLVM.AST.IntegerPredicate as P
 import LLVM.AST.Type as AST
 import LLVM.IRBuilder.Module
 import LLVM.IRBuilder.Monad
@@ -14,7 +18,7 @@ import LLVM.IRBuilder.Constant
 
 type Env = M.Map String Operand
 
-compileExpr :: (MonadIRBuilder m) => Expr -> StateT Env m Operand
+compileExpr :: (MonadFix m, MonadIRBuilder m) => Expr -> StateT Env m Operand
 compileExpr (ExprInt n) = pure $ int32 n
 compileExpr (ExprAdd e1 e2) = do
     e1' <- compileExpr e1
@@ -44,8 +48,29 @@ compileExpr (Var v) = do
               Just x  -> x
               Nothing -> error $ "variable " ++ v ++ " not found"
     pure opr
+compileExpr (ExprLT e1 e2) = do
+  e1' <- compileExpr e1
+  e2' <- compileExpr e2
+  icmp P.SLT e1' e2'
+compileExpr (ExprIf condExpr thenExpr elseExpr) = mdo
+  cond <- compileExpr condExpr
+  condBr cond ifThen ifElse
+  -- then:
+  ifThen <- block `named` "then"
+  oprThen <- compileExpr thenExpr
+  br ifEnd
+  enfOfThen <- currentBlock
+  -- else:
+  ifElse <- block `named` "else"
+  oprElse <- compileExpr elseExpr
+  -- end:
+  br ifEnd
+  endOfElse <- currentBlock
+  ifEnd <- block `named` "end"
+  -- phi
+  phi [(oprThen, enfOfThen), (oprElse, endOfElse)]
 
-compileExprs :: (MonadIRBuilder m) => [Expr] -> StateT Env m Operand
+compileExprs :: (MonadFix m, MonadIRBuilder m) => [Expr] -> StateT Env m Operand
 compileExprs [e] = compileExpr e
 compileExprs (e:es) = do
   compileExpr e

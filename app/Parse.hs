@@ -40,6 +40,7 @@ ops =
     , InfixL (ExprDiv <$ (symbol "/")) ],
     [ InfixL (ExprAdd <$ (symbol "+"))
     , InfixL (ExprSub <$ (symbol "-")) ],
+    [ InfixL (ExprLT <$ (symbol "<")) ],    
     [ InfixL (Assign <$ (symbol "=")) ]
   ]
 
@@ -49,7 +50,18 @@ expr = makeExprParser term ops
 term :: Parser Expr
 term = ExprInt <$> lexeme L.decimal
   <|> parens expr
+  <|> exprIf
   <|> Var <$> lexeme identifier
+
+exprIf :: Parser Expr
+exprIf = do
+    symbol "if"
+    condExpr <- expr
+    symbol "then"
+    thenExpr <- expr
+    symbol "else"
+    elseExpr <- expr
+    pure $ ExprIf condExpr thenExpr elseExpr
 
 parens :: Parser a -> Parser a
 parens = between (char '(') (char ')')

@@ -24,5 +24,7 @@ assert 2 10/4
 assert 7 1+2*3
 assert 9 "(1+2)*3"
 assert 3 "a=1; b=2; a+b"
+assert 3 "if 1 < 2 then 3 else 4"
+assert 4 "a=5; if a < 2 then 3 else 4"
 
 echo OK
