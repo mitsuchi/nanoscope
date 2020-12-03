@@ -3,7 +3,7 @@ assert() {
   expected="$1"
   input="$2"
 
-  echo "$input" | stack runghc nano.hs | lli
+  echo "$input" | stack run | lli
   actual="$?"
 
   if [ "$actual" = "$expected" ]; then
@@ -14,6 +14,7 @@ assert() {
   fi
 }
 
-assert 42 42
+#assert 42 42
+assert 46 12+34
 
 echo OK
