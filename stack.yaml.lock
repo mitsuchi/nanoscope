@@ -39,6 +39,13 @@ packages:
       sha256: dbad27efec25efc9bb739682f0770953086119bdb85b84c09ce103ddde1b5343
   original:
     hackage: llvm-hs-pretty-0.6.2.0
+- completed:
+    hackage: parser-combinators-1.1.0@sha256:0c79260aeb14db4790a859dd1a3f772b1c6c7c640e93308b4795e983db4a62d7,1856
+    pantry-tree:
+      size: 724
+      sha256: 6af438ee4e4dd7ace21344c50c88c8ab1dd44a50268616f153cb025393b95345
+  original:
+    hackage: parser-combinators-1.1.0
 snapshots:
 - completed:
     size: 524163

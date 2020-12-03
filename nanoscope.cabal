@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4ad571dbdcb8cc30a2f59051dfaa9a12f5e2bc33d7e078e0b1fa9fd6d3748a1a
+-- hash: e7733ba3d08a1c181445ee362a0b514bd592114d74714fc2cae4cf629fb2daf9
 
 name:           nanoscope
 version:        0.1.0.0
@@ -38,12 +38,16 @@ library
     , llvm-hs-pretty ==0.6.2.0
     , llvm-hs-pure ==9.0.0
     , megaparsec ==8.0.0
+    , parser-combinators ==1.1.0
     , text ==1.2.3.1
   default-language: Haskell2010
 
 executable nanoscope-exe
   main-is: Main.hs
   other-modules:
+      AstData
+      Compile
+      Parse
       Paths_nanoscope
   hs-source-dirs:
       app
@@ -55,6 +59,7 @@ executable nanoscope-exe
     , llvm-hs-pure ==9.0.0
     , megaparsec ==8.0.0
     , nanoscope
+    , parser-combinators ==1.1.0
     , text ==1.2.3.1
   default-language: Haskell2010
 
@@ -73,5 +78,6 @@ test-suite nanoscope-test
     , llvm-hs-pure ==9.0.0
     , megaparsec ==8.0.0
     , nanoscope
+    , parser-combinators ==1.1.0
     , text ==1.2.3.1
   default-language: Haskell2010
