@@ -20,7 +20,15 @@ compileExpr (ExprSub e1 e2) = do
     e1' <- compileExpr e1
     e2' <- compileExpr e2
     sub e1' e2'
-
+compileExpr (ExprMul e1 e2) = do
+    e1' <- compileExpr e1
+    e2' <- compileExpr e2
+    mul e1' e2'
+compileExpr (ExprDiv e1 e2) = do
+    e1' <- compileExpr e1
+    e2' <- compileExpr e2
+    sdiv e1' e2'
+    
 compileToLLVM ast =
     ppllvm $ buildModule "main" $ do
     function "main" [] i32 $ \[] -> do

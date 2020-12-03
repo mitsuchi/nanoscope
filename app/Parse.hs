@@ -29,12 +29,21 @@ symbol s = L.symbol sc s
 ops :: [[Operator Parser Expr]]
 ops =
   [
+    [ InfixL (ExprMul <$ (symbol "*"))
+    , InfixL (ExprDiv <$ (symbol "/")) ],
     [ InfixL (ExprAdd <$ (symbol "+"))
     , InfixL (ExprSub <$ (symbol "-")) ]
   ]
 
 expr :: Parser Expr
-expr = makeExprParser (ExprInt <$> lexeme L.decimal) ops
+expr = makeExprParser term ops
+
+term :: Parser Expr
+term = ExprInt <$> lexeme L.decimal
+    <|> parens expr
+
+parens :: Parser a -> Parser a
+parens = between (char '(') (char ')')
 
 parseExpr :: String -> Expr
 parseExpr str = case parse (sc *> expr) "<stdin>" str of
