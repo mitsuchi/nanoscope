@@ -39,8 +39,7 @@ ops =
     [ InfixL (ExprMul <$ (symbol "*"))
     , InfixL (ExprDiv <$ (symbol "/")) ],
     [ InfixL (ExprAdd <$ (symbol "+"))
-    , InfixL (ExprSub <$ (symbol "-")) ],
-    [ InfixL (Assign <$ (symbol "=")) ]
+    , InfixL (ExprSub <$ (symbol "-")) ]
   ]
 
 expr :: Parser Expr
@@ -54,10 +53,21 @@ term = ExprInt <$> lexeme L.decimal
 parens :: Parser a -> Parser a
 parens = between (char '(') (char ')')
 
-exprs :: Parser [Expr]
-exprs = expr `sepEndBy` (symbol ";")
+assign :: Parser Stmt
+assign = do
+  lhs <- expr
+  symbol "="
+  rhs <- expr
+  pure $ Assign lhs rhs
 
-parseExpr :: String -> [Expr]
-parseExpr str = case parse (sc *> exprs) "<stdin>" str of
+stmt :: Parser Stmt
+stmt = try assign
+  <|> JustExpr <$> expr
+
+stmts :: Parser [Stmt]
+stmts = stmt `sepEndBy` (symbol ";")
+
+parseStmts :: String -> [Stmt]
+parseStmts str = case parse (sc *> stmts) "<stdin>" str of
   Right ast -> ast
   Left bundle -> error $ errorBundlePretty bundle

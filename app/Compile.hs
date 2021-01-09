@@ -32,12 +32,6 @@ compileExpr (ExprDiv e1 e2) = do
     e1' <- compileExpr e1
     e2' <- compileExpr e2
     sdiv e1' e2'
-compileExpr (Assign (Var v) e) = do
-    env <- get
-    e' <- compileExpr e
-    let env' = M.insert v e' env
-    put env'
-    pure e'
 compileExpr (Var v) = do
     env <- get
     let opr = case M.lookup v env of
@@ -45,14 +39,23 @@ compileExpr (Var v) = do
               Nothing -> error $ "variable " ++ v ++ " not found"
     pure opr
 
-compileExprs :: (MonadIRBuilder m) => [Expr] -> StateT Env m Operand
-compileExprs [e] = compileExpr e
-compileExprs (e:es) = do
-  compileExpr e
-  compileExprs es
+compileStmt :: (MonadIRBuilder m) => Stmt -> StateT Env m Operand
+compileStmt (JustExpr e) = compileExpr e
+compileStmt (Assign (Var v) e) = do
+    env <- get
+    e' <- compileExpr e
+    let env' = M.insert v e' env
+    put env'
+    pure $ (int32 0)
+
+compileStmts :: (MonadIRBuilder m) => [Stmt] -> StateT Env m Operand
+compileStmts [s] = compileStmt s
+compileStmts (s:ss) = do
+  compileStmt s
+  compileStmts ss
       
 compileToLLVM ast =
     ppllvm $ buildModule "main" $ do
     function "main" [] i32 $ \[] -> do
-        opr <- evalStateT (compileExprs ast) $ M.empty
+        opr <- evalStateT (compileStmts ast) $ M.empty
         ret opr
