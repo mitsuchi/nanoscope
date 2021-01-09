@@ -2,7 +2,7 @@ module AstData where
 
 -- EBNF:
 -- program = stmt*
--- stmt = expr | assign expr expr
+-- stmt = expr | assign expr expr | ret expr
 -- expr = expr '+' expr | expr '-' expr
 --      | expr '*' expr | expr '/' expr
 --      | int | var
@@ -10,6 +10,7 @@ module AstData where
 data Stmt =           -- 文は、次のいずれか
   JustExpr Expr       -- 式そのもの
   | Assign Expr Expr  -- 変数への代入文
+  | Retn Expr          -- Return文
 
 data Expr =           -- 式は、次のいずれか
   ExprAdd Expr Expr   -- 式 + 式

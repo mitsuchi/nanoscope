@@ -62,7 +62,14 @@ assign = do
 
 stmt :: Parser Stmt
 stmt = try assign
+  <|> retn
   <|> JustExpr <$> expr
+
+retn :: Parser Stmt
+retn = do
+  symbol "return"
+  e <- expr
+  pure $ Retn e
 
 stmts :: Parser [Stmt]
 stmts = stmt `sepEndBy` (symbol ";")

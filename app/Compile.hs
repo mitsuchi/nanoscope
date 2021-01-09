@@ -39,16 +39,21 @@ compileExpr (Var v) = do
               Nothing -> error $ "variable " ++ v ++ " not found"
     pure opr
 
-compileStmt :: (MonadIRBuilder m) => Stmt -> StateT Env m Operand
-compileStmt (JustExpr e) = compileExpr e
+compileStmt :: (MonadIRBuilder m) => Stmt -> StateT Env m (Maybe Operand)
+compileStmt (JustExpr e) = do
+  compileExpr e
+  pure Nothing
 compileStmt (Assign (Var v) e) = do
-    env <- get
-    e' <- compileExpr e
-    let env' = M.insert v e' env
-    put env'
-    pure $ (int32 0)
+  env <- get
+  e' <- compileExpr e
+  let env' = M.insert v e' env
+  put env'
+  pure Nothing
+compileStmt (Retn e) = do
+  e' <- compileExpr e
+  pure $ Just e'
 
-compileStmts :: (MonadIRBuilder m) => [Stmt] -> StateT Env m Operand
+compileStmts :: (MonadIRBuilder m) => [Stmt] -> StateT Env m (Maybe Operand)
 compileStmts [s] = compileStmt s
 compileStmts (s:ss) = do
   compileStmt s
@@ -58,4 +63,6 @@ compileToLLVM ast =
     ppllvm $ buildModule "main" $ do
     function "main" [] i32 $ \[] -> do
         opr <- evalStateT (compileStmts ast) $ M.empty
-        ret opr
+        case opr of
+          Just opr' -> ret opr'
+          Nothing   -> error "must end with return"
